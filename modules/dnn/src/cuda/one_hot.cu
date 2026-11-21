@@ -74,5 +74,7 @@ namespace cv { namespace dnn { namespace cuda4dnn { namespace kernels {
     template void one_hot(const Stream&, Span<int32_t>, View<int64_t>, std::size_t, std::size_t, int32_t, int32_t);
     template void one_hot(const Stream&, Span<int64_t>, View<int32_t>, std::size_t, std::size_t, int64_t, int64_t);
     template void one_hot(const Stream&, Span<int64_t>, View<int64_t>, std::size_t, std::size_t, int64_t, int64_t);
+    template void one_hot(const Stream&, Span<bool>, View<int32_t>, std::size_t, std::size_t, bool, bool);
+    template void one_hot(const Stream&, Span<bool>, View<int64_t>, std::size_t, std::size_t, bool, bool);
 
 }}}} /* namespace cv::dnn::cuda4dnn::kernels */

@@ -46,7 +46,7 @@ public:
             if (it >= 0 && it != CV_32S && it != CV_64S)
                 return false;
             const int t = netimpl_->argData(this->inputs[2]).type;
-            return t < 0 || isCudaNodeType(t, false);
+            return t < 0 || isCudaNodeType(t);
         }
 #endif
         return backendId == DNN_BACKEND_OPENCV;
@@ -61,6 +61,13 @@ public:
         Net::Impl* netimpl_ = getNetImpl(this);
         CV_Assert(netimpl_ && netimpl_->isConstArg(this->inputs[2]));
         Mat values = netimpl_->argTensor(this->inputs[2]);
+        // make_cuda_node_with_indices() rejects bool, so create the bool node directly
+        if (outputs_arr.type(0) == CV_Bool) {
+            if (inputs_arr.depth(0) == CV_32S)
+                return Ptr<BackendNode>(new cuda4dnn::OneHotOp<bool, int32_t>(std::move(context->stream), axis, values));
+            CV_CheckDepthEQ(inputs_arr.depth(0), CV_64S, "OneHot: CUDA reads int32 or int64 indices only");
+            return Ptr<BackendNode>(new cuda4dnn::OneHotOp<bool, int64_t>(std::move(context->stream), axis, values));
+        }
         if (inputs_arr.depth(0) == CV_32S)
             return make_cuda_node_with_indices<cuda4dnn::OneHotOp, int32_t>(preferableTarget, outputs_arr.type(0),
                                                                              std::move(context->stream), axis, values);
